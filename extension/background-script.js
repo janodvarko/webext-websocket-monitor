@@ -12,8 +12,6 @@ var listener = {
   }
 }
 
-listener.username = "honza";
-
 browser.websocket.addListener("mywinid", listener).then(
   message => console.log(`hello sez: "${message}"`)
 );
