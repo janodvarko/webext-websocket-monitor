@@ -6,7 +6,7 @@ class API extends ExtensionAPI {
       websocket: {
         async addListener(innerId, listener) {
           listener.frameSent();
-          return "Hello, world! " + innerId + " " + listener.username;
+          return "Hello, world! " + innerId;
         }
       }
     };
