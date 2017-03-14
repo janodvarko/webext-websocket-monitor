@@ -1,0 +1,36 @@
+[
+  {
+    "namespace": "websocket",
+    "description": "WebSocket Monitor API",
+    "permissions": ["experiments.websocket"],
+    "types": [
+      {
+        "id": "Listener",
+        "type": "object",
+        "description": "TODO",
+        "properties": {
+          "frameSent": {
+            "type": "function",
+            "async": "callback",
+            "description": "TODO"
+          }
+        }
+      }
+    ],
+    "functions": [
+      {
+        "name": "addListener",
+        "type": "function",
+        "description": "Add listener for WS frames",
+        "async": true,
+        "parameters": [{
+          "name": "innerId",
+          "type": "string"
+        }, {
+          "name": "listener",
+          "$ref": "Listener"
+        }]
+      }
+    ]
+  }
+]

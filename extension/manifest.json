@@ -1,0 +1,18 @@
+{
+  "name": "WebSocket Monitor",
+  "short_name": "WebSocket Monitor",
+  "description": "WebSocket monitor is an extension for Firefox developer tools that can be used to monitor WebSocket connections in Firefox. It allows to inspect all data sent and received.",
+  "version": "0.1.1",
+  "devtools_page": "devtools.html",
+  "manifest_version": 2,
+  "content_scripts": [{
+    "matches": ["<all_urls>"],
+    "js": ["content-script.js"]
+  }],
+  "background": {
+    "scripts": ["background-script.js"]
+  },
+  "permissions": [
+    "experiments.websocket"
+  ]
+}
