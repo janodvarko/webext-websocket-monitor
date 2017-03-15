@@ -5,3 +5,32 @@
 "use strict";
 
 console.log("panel: LOAD");
+
+var port = chrome.runtime.connect(null, { name : "panel" });
+var tabId = chrome.devtools.inspectedWindow.tabId;
+
+port.onMessage.addListener(function(msg) {
+  console.log("panel onMessage", msg);
+
+  switch (msg.action) {
+  }
+});
+
+port.onDisconnect.addListener(function() {
+  console.log("panel onDisconnect");
+});
+
+function post(msg) {
+  msg.tabId = tabId;
+  port.postMessage(msg);
+}
+
+post({
+  action: "initialized"
+});
+
+browser.runtime.sendMessage({
+  action: "panel-initialized",
+  url: window.location.href,
+  tabId: tabId
+});

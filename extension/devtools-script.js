@@ -16,9 +16,64 @@ chrome.devtools.panels.create(
 
 /**
  * Panel initialization
+ *
+ * See Panel API Schema:
+ * https://dxr.mozilla.org/mozilla-central/source/browser/components/extensions/schemas/devtools_panels.json
  */
 function initialize(panel) {
+  console.log("My panel initialized", panel);
+
   panel.onShown.addListener(function (win) {
-    // TODO: initialization steps
+    console.log("My panel is visible", win);
+  });
+
+  panel.onHidden.addListener(function () {
+    console.log("My panel is hidden", arguments);
   });
 }
+
+/**
+ * Communication channel
+ */
+var port = chrome.runtime.connect(null, { name : "devtools" });
+var tabId = chrome.devtools.inspectedWindow.tabId;
+
+function post(msg) {
+  msg.tabId = tabId;
+  port.postMessage(msg);
+}
+
+post({
+  action: "devtools-script-message"
+});
+
+browser.runtime.sendMessage({
+  action: "devtools-script-initialized",
+  tabId: tabId,
+});
+
+chrome.runtime.onConnect.addListener(port => {
+  var name = port.name;
+
+  console.log('devtools-script: new connection: ' + name, port);
+
+  port.postMessage({
+    action: "devtools-script new connection callback!"
+  });
+
+  port.onMessage.addListener(msg => {
+    console.log("devtools-script port.onMessage", msg);
+  })
+});
+
+port.onDisconnect.addListener(function() {
+  console.log("devtools-script onDisconnect");
+});
+
+port.onMessage.addListener(function(msg) {
+  console.log("devtools-script onMessage ", msg);
+
+  switch (msg.action) {
+    // TODO
+  }
+});

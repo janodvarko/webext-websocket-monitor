@@ -17,18 +17,28 @@
         }
       }
     ],
+    "events": [
+      {
+        "name": "onFrameSent",
+        "type": "function",
+        "description": "TODO",
+        "parameters": [
+          {
+            "type": "number",
+            "name": "webSocketSerialID"
+          }
+        ]
+      }
+    ],
     "functions": [
       {
-        "name": "addListener",
+        "name": "connect",
         "type": "function",
-        "description": "Add listener for WS frames",
+        "description": "TODO",
         "async": true,
         "parameters": [{
-          "name": "innerId",
-          "type": "string"
-        }, {
-          "name": "listener",
-          "$ref": "Listener"
+          "name": "tabId",
+          "type": "number"
         }]
       }
     ]

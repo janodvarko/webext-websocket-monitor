@@ -6,12 +6,37 @@
 
 console.log("background-script: LOAD");
 
-var listener = {
-  frameSent: function () {
-    console.log("frameSent");
-  }
-}
+/**
+ * Register message listener
+ */
+browser.runtime.onMessage.addListener(msg => {
+  console.log("background-script runtime.onMessage", msg);
 
-browser.websocket.addListener("mywinid", listener).then(
-  message => console.log(`hello sez: "${message}"`)
-);
+  const {action} = msg;
+  switch (action) {
+    case "panel-initialized":
+    onPanelInitialized(msg);
+    break;
+  }
+});
+
+chrome.runtime.onConnect.addListener(port => {
+  var name = port.name;
+
+  console.log('background-script: new connection: ' + name, port);
+});
+
+/**
+ * WebSockets panel initialized (opened for the first time).
+ */
+function onPanelInitialized(msg) {
+  var websocket = browser.websocket;
+
+  websocket.onFrameSent.addListener(msg => {
+    console.log("background-script.js onFrameSent: ", msg);
+  });
+
+  websocket.connect(msg.tabId).then(
+    message => console.log(`WS service connected: "${message}"`)
+  );
+}
