@@ -32,8 +32,8 @@ chrome.runtime.onConnect.addListener(port => {
 function onPanelInitialized(msg) {
   var websocket = browser.websocket;
 
-  websocket.onFrameSent.addListener(msg => {
-    console.log("background-script.js onFrameSent: ", msg);
+  websocket.onEvent.addListener((eventName, data) => {
+    console.log("background-script.js onEvent: " + eventName, data);
   });
 
   websocket.connect(msg.tabId).then(

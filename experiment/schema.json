@@ -19,13 +19,18 @@
     ],
     "events": [
       {
-        "name": "onFrameSent",
+        "name": "onEvent",
         "type": "function",
         "description": "TODO",
         "parameters": [
           {
-            "type": "number",
-            "name": "webSocketSerialID"
+            "type": "string",
+            "name": "eventName"
+          },
+          {
+            "type": "object",
+            "name": "frame",
+            "additionalProperties": { "type": "any" }
           }
         ]
       }

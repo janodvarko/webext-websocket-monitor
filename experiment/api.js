@@ -44,18 +44,21 @@ class API extends ExtensionAPI {
             RDPConnections.delete(tabId);
           });
 
-          //this.onFrameSent();
-
           return Promise.resolve().then(() => {
-            // rdpEvents.off("disconnect", listener);
             return "web sockets API service";
           });
         },
 
-        // API Events
-        onFrameSent: new SingletonEventManager(context, "websocket.onFrameSent", fire => {
-          //wsEvents.on("onFrameSent", listener);
-          fire.async(42);
+        // WebSocket Events
+        onEvent: new SingletonEventManager(context, "websocket.onEvent", fire => {
+          let listener = (eventName, data) => {
+            fire.async(eventName, data);
+          };
+
+          wsEvents.on("event", listener);
+          return () => {
+            wsEvents.off("event", listener);
+          };
         }).api(),
       }
     };
@@ -82,12 +85,12 @@ class API extends ExtensionAPI {
  * TODO
  */
 class WSConnection extends EventEmitter {
-  constructor(tabId, context, wsEvents) {
+  constructor(tabId, context, events) {
     super();
 
     this.tabId = tabId;
     this.context = context;
-    this.wsEvents = wsEvents;
+    this.listener = new WebSocketEventListener(events);
 
     // It is used to register an object to be automatically "closed"
     // when the context is destroyed (the "close" method of the passed
@@ -101,17 +104,21 @@ class WSConnection extends EventEmitter {
     this.removeFrameListener();
   }
 
+  disconnected() {
+    // TODO:
+  }
+
   // nsIWebSocketEventService
 
   addFrameListener() {
     var innerId = getInnerId(this.tabId);
-    webSocketEventService.addListener(innerId, WebSocketEventListener);
+    webSocketEventService.addListener(innerId, this.listener);
   }
 
   removeFrameListener() {
     var innerId = getInnerId(this.tabId);
     try {
-      webSocketEventService.removeListener(innerId, WebSocketEventListener);
+      webSocketEventService.removeListener(innerId, this.listener);
     } catch (err) {
       Cu.reportError("WSConnection.removeFrameListener; ERROR " + err, err);
     }
@@ -119,17 +126,20 @@ class WSConnection extends EventEmitter {
 }
 
 /**
- *
+ * TODO
  */
-var WebSocketEventListener = {
+function WebSocketEventListener(events) {
+  this.events = events;
+}
 
+WebSocketEventListener.prototype = {
   // nsIWebSocketEventService
 
   QueryInterface:
     XPCOMUtils.generateQI([Ci.nsIWebSocketEventService]),
 
   webSocketCreated: function(webSocketSerialID, uri, protocols) {
-    this.emit(this, "webSocketCreated", {
+    this.emit("webSocketCreated", {
       webSocketSerialID: webSocketSerialID,
       uri: uri,
       protocols: protocols
@@ -137,7 +147,7 @@ var WebSocketEventListener = {
   },
 
   webSocketOpened: function(webSocketSerialID, effectiveURI, protocols, extensions) {
-    this.emit(this, "webSocketOpened", {
+    this.emit("webSocketOpened", {
       webSocketSerialID: webSocketSerialID,
       effectiveURI: effectiveURI,
       protocols: protocols,
@@ -146,7 +156,7 @@ var WebSocketEventListener = {
   },
 
   webSocketClosed: function(webSocketSerialID, wasClean, code, reason) {
-    this.emit(this, "webSocketClosed", {
+    this.emit("webSocketClosed", {
       webSocketSerialID: webSocketSerialID,
       wasClean: wasClean,
       code: code,
@@ -155,7 +165,7 @@ var WebSocketEventListener = {
   },
 
   webSocketMessageAvailable: function(webSocketSerialID, data, messageType) {
-    this.emit(this, "webSocketMessageAvailable", {
+    this.emit("webSocketMessageAvailable", {
       webSocketSerialID: webSocketSerialID,
       data: data,
       messageType: messageType
@@ -163,25 +173,21 @@ var WebSocketEventListener = {
   },
 
   frameReceived: function(webSocketSerialID, frame) {
-    console.log("frameReceived", frame);
-
-    this.emit(this, "frameReceived", {
+    this.emit("frameReceived", {
       webSocketSerialID: webSocketSerialID,
       data: frame
     });
   },
 
   frameSent: function(webSocketSerialID, frame) {
-    console.log("frameSent", frame);
-
-    this.emit(this, "frameSent", {
+    this.emit("frameSent", {
       webSocketSerialID: webSocketSerialID,
       data: frame
     });
   },
 
-  emit: function() {
-
+  emit: function(eventName, data) {
+    this.events.emit("event", eventName, data);
   }
 }
 
