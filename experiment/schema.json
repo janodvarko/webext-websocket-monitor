@@ -3,20 +3,6 @@
     "namespace": "websocket",
     "description": "WebSocket Monitor API",
     "permissions": ["experiments.websocket"],
-    "types": [
-      {
-        "id": "Listener",
-        "type": "object",
-        "description": "TODO",
-        "properties": {
-          "frameSent": {
-            "type": "function",
-            "async": "callback",
-            "description": "TODO"
-          }
-        }
-      }
-    ],
     "events": [
       {
         "name": "onEvent",
@@ -38,6 +24,16 @@
     "functions": [
       {
         "name": "connect",
+        "type": "function",
+        "description": "TODO",
+        "async": true,
+        "parameters": [{
+          "name": "tabId",
+          "type": "number"
+        }]
+      },
+      {
+        "name": "disconnect",
         "type": "function",
         "description": "TODO",
         "async": true,

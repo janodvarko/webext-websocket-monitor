@@ -26,12 +26,28 @@ const {
 } = ExtensionUtils;
 
 /**
- * TODO
+ * Implementation of experimental API allowing intercepting
+ * WebSocket communication happening in specified browser tab.
+ *
+ * Following methods are supported:
+ *   connect() Connecting to WebSocket event service.
+ *   disconnect() Disconnecting from WebSocket even service.
+ *   onEvent() Callback executed whenever there is a WS event.
+ *
+ * Example:
+ *   var websocket = browser.websocket;
+ *
+ *   websocket.onEvent.addListener((eventName, data) => {
+ *     console.log("WS event: " + eventName, data);
+ *   });
+ *
+ *   websocket.connect(msg.tabId).then(() => {
+ *     console.log("connected");
+ *   });
  */
 class API extends ExtensionAPI {
   getAPI(context) {
     const WSConnections = new Map();
-    let nextWSConnectionId = 1;
     let wsEvents = new EventEmitter();
 
     return {
@@ -44,9 +60,13 @@ class API extends ExtensionAPI {
             RDPConnections.delete(tabId);
           });
 
-          return Promise.resolve().then(() => {
-            return "web sockets API service";
-          });
+          // Keep this method asynchronous it might be useful
+          // in the future (when remote debugging is supported).
+          return Promise.resolve();
+        },
+
+        async disconnect(tabId) {
+          return Promise.resolve();
         },
 
         // WebSocket Events
@@ -76,13 +96,14 @@ class API extends ExtensionAPI {
     try {
       webSocketEventService.removeListener(innerId, this);
     } catch (err) {
-      Cu.reportError("WsmActor.removeFrameListener; ERROR " + err, err);
+      Cu.reportError("API.removeFrameListener; ERROR " + err, err);
     }
   }
 }
 
 /**
- * TODO
+ * This object represent a connection to the WS backend
+ * associated with specific browser tab.
  */
 class WSConnection extends EventEmitter {
   constructor(tabId, context, events) {
@@ -126,7 +147,8 @@ class WSConnection extends EventEmitter {
 }
 
 /**
- * TODO
+ * Implementation of a listener for nsIWebSocketEventService.
+ * It forwards all WS events to passed 'events' target.
  */
 function WebSocketEventListener(events) {
   this.events = events;
