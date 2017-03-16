@@ -195,6 +195,9 @@ WebSocketEventListener.prototype = {
 
 function getInnerId(tabId) {
   let tab = tabTracker.getTab(tabId);
+
+  // FIXME: accessing '_contentWindow' is unsafe/forbidden
+  // CPOW usage (see also browser console warning message)
   let win = tab.linkedBrowser._contentWindow;
   return win.QueryInterface(Ci.nsIInterfaceRequestor).
     getInterface(Ci.nsIDOMWindowUtils).currentInnerWindowID;
